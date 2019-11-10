@@ -32,6 +32,7 @@ def main():
     else:
         path = "/dev/bus/usb/001/0" + str(dev_id)
     os.system("sudo chmod 777 "+ path)
+    os.system("sudo chmod 777 /dev/ttyACM0")
 
 if __name__ == "__main__":
     main()

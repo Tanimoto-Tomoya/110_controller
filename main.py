@@ -2,15 +2,17 @@
 # -*- coding: utf-8 -*-
 
 
-import sys, time,datetime
+import os,sys, time,datetime
 import tkinter as tk
 from PIL import Image,ImageTk
-import RPi.GPIO as GPIO
+#import RPi.GPIO as GPIO
+import serial
 from tkinter import Tk, ttk,PhotoImage
 import read, chmod
 
 
 chmod.main()
+"""
 GPIO.setmode(GPIO.BCM)
 esc1_pin = 14
 esc2_pin = 15
@@ -40,6 +42,8 @@ GPIO.output(t1_led_pin,0)
 GPIO.output(t2_led_pin,0)
 GPIO.output(side_led_pin,0)
 time.sleep(5)
+"""
+nucleo = serial.Serial('/dev/ttyACM0',timeout=0.08)
 read.setup()
 
 global rotation_state
@@ -48,6 +52,8 @@ global headlight_state
 headlight_state = 0
 global taillight_state
 taillight_state = 0
+global shutdown
+shutdown = 1
 
 root = tk.Tk()
 root.title("5inch_controller")
@@ -61,9 +67,12 @@ canvas.create_image(0,0,image = back_image,anchor=tk.NW)
 canvas.create_oval(707,310,769,372,fill='yellow')
 
 def quit_button_pushed():
+    """
     esc1.stop()
     esc2.stop()
     GPIO.cleanup()
+    """
+    nucleo.close()
     root.destroy()
     tk.sys.exit(0)
 
@@ -72,21 +81,25 @@ quit_button = tk.Button(root,text="x",command=quit_button_pushed)
 #F/R button
 def f_button_pushed():
     global rotation_state
+    global shutdown
     rotation_state = 1
     f_button.configure(image=f_button_on_img)
     r_button.configure(image=r_button_img)
     canvas.delete("n_lamp")
     canvas.create_oval(545,300,607,362,tag="n_lamp",fill="gray")
-    GPIO.output(side_led_pin,1)
+    shutdown = 0
+    #GPIO.output(side_led_pin,1)
 
 def r_button_pushed():
     global rotation_state
+    global shutdown
     rotation_state = -1
     r_button.configure(image=r_button_on_img)
     f_button.configure(image=f_button_img)
     canvas.delete("n_lamp")
     canvas.create_oval(545,300,607,362,tag="n_lamp",fill="gray")
-    GPIO.output(side_led_pin,1)
+    shutdown = 0
+    #GPIO.output(side_led_pin,1)
     
 
 f_button_img = Image.open('f_button_r.png')
@@ -109,11 +122,13 @@ r_button.place(x=620,y=390)
 
 def emg_pushed():
     global rotation_state
+    global shutdown
     rotation_state = 0
     r_button.configure(image=r_button_img)
     f_button.configure(image=f_button_img)
     canvas.create_oval(545,300,607,362,tag="n_lamp",fill="green")
-    GPIO.output(side_led_pin,0)
+    shutdown = 1
+    #GPIO.output(side_led_pin,0)
     
 emg_img = Image.open('emgsw.png')
 emg_img = emg_img.resize((62,62))
@@ -135,8 +150,8 @@ def head_off():
     headlight_state = 0
     head_on_sw.configure(fg='#000000',bg='#ffffff')
     head_off_sw.configure(fg='#ffffff',bg='#ff0000')
-    GPIO.output(h1_led_pin,0)
-    GPIO.output(h2_led_pin,0)
+    #GPIO.output(h1_led_pin,0)
+    #GPIO.output(h2_led_pin,0)
     
 head_on_sw = tk.Button(root,text='ON',fg='#000000',bg='#ffffff',font=("","12","bold"),command=head_on)
 head_on_sw.place(x=210,y=108)
@@ -154,8 +169,8 @@ def tail_off():
     taillight_state = 0
     tail_on_sw.configure(fg='#000000',bg='#ffffff')
     tail_off_sw.configure(fg='#ffffff',bg='#ff0000')
-    GPIO.output(t1_led_pin,0)
-    GPIO.output(t2_led_pin,0)
+    #GPIO.output(t1_led_pin,0)
+    #GPIO.output(t2_led_pin,0)
 
 tail_on_sw = tk.Button(root,text='ON',fg='#000000',bg='#ffffff',font=("","12","bold"),command=tail_on)
 tail_on_sw.place(x=210,y=148)
@@ -206,45 +221,62 @@ def show_bar(mas,bra):
         canvas.create_line(82,334,234,334,width=24,fill='blue',tag="mas5")
     canvas.create_polygon(81,455,81,308,200,455,fill='black')
     
+def send(mascon,brake,rot_sta,headlight,taillight,SD):
+    if rot_sta == 1:
+        forward = 1
+        backward = 0
+    elif rot_sta == -1:
+        forward = 0
+        backward = 1
+    else:
+        forward = 0
+        backward = 0
+        
+    nucleo.write(bytes([0xff,mascon,brake,forward,backward,headlight,taillight,SD]))
+    
+    
 def controll():
     data = read.main()
+    send(data[0],data[1],rotation_state,headlight_state,taillight_state,shutdown)
+    """
     if data[0] == 0 or rotation_state == 0:
-        esc1.ChangeDutyCycle(7.36)
-        esc2.ChangeDutyCycle(7.36)
+        #esc1.ChangeDutyCycle(7.36)
+        #esc2.ChangeDutyCycle(7.36)
         if rotation_state == 1:
             if headlight_state == 1:
-                GPIO.output(h1_led_pin,1)
-                GPIO.output(h2_led_pin,0)
+                #GPIO.output(h1_led_pin,1)
+                #GPIO.output(h2_led_pin,0)
             if taillight_state == 1:
-                GPIO.output(t1_led_pin,1)
-                GPIO.output(t2_led_pin,0)
+                #GPIO.output(t1_led_pin,1)
+                #GPIO.output(t2_led_pin,0)
         else:
             if headlight_state == 1:
-                GPIO.output(h2_led_pin,1)
-                GPIO.output(h1_led_pin,0)
+                #GPIO.output(h2_led_pin,1)
+                #GPIO.output(h1_led_pin,0)
             if taillight_state == 1:
-                GPIO.output(t1_led_pin,1)
-                GPIO.output(t2_led_pin,0)
+                #GPIO.output(t1_led_pin,1)
+                #GPIO.output(t2_led_pin,0)
     else:
         if rotation_state == 1:
-            esc1.ChangeDutyCycle(data[0] * 0.3 + 7.36)
-            esc2.ChangeDutyCycle(7.36 - data[0] * 0.8)
+            #esc1.ChangeDutyCycle(data[0] * 0.3 + 7.36)
+            #esc2.ChangeDutyCycle(7.36 - data[0] * 0.8)
             if headlight_state == 1:
-                GPIO.output(h1_led_pin,1)
-                GPIO.output(h2_led_pin,0)
+                #GPIO.output(h1_led_pin,1)
+                #GPIO.output(h2_led_pin,0)
             if taillight_state == 1:
-                GPIO.output(t1_led_pin,1)
-                GPIO.output(t2_led_pin,0)
+                #GPIO.output(t1_led_pin,1)
+                #GPIO.output(t2_led_pin,0)
         else:
-            esc2.ChangeDutyCycle(data[0] * 0.3 + 7.36)
-            esc1.ChangeDutyCycle(7.36 - data[0] * 0.8)
+            #esc2.ChangeDutyCycle(data[0] * 0.3 + 7.36)
+            #esc1.ChangeDutyCycle(7.36 - data[0] * 0.8)
             if headlight_state == 1:
-                GPIO.output(h2_led_pin,1)
-                GPIO.output(h1_led_pin,0)
+                #GPIO.output(h2_led_pin,1)
+                #GPIO.output(h1_led_pin,0)
             if taillight_state == 1:
-                GPIO.output(t1_led_pin,1)
-                GPIO.output(t2_led_pin,0)
+                #GPIO.output(t1_led_pin,1)
+                #GPIO.output(t2_led_pin,0)
     #print(str(headlight_state))        
+    """
     show_bar(data[0],data[1])
     dt_now = datetime.datetime.now()
     if dt_now.hour < 10:
