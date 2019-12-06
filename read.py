@@ -1,35 +1,40 @@
 #!/usr/bin/env python3
-import usb, sys
+import usb
+import sys
+
 
 class UsbDevice:
-  def __init__(self, vendor_id, product_id):
-    busses = usb.busses()
-    self.handle = None
-    for bus in busses:
-      devices = bus.devices
-      for dev in devices:
-        if dev.idVendor==vendor_id and dev.idProduct==product_id:
-          self.dev = dev
-          self.conf = self.dev.configurations[0]
-          self.intf = self.conf.interfaces[0][0]
-          self.endpoints = []
-          for endpoint in self.intf.endpoints:
-            self.endpoints.append(endpoint.address)
-          return
-    raise IndentationError('Not found device!')
+    def __init__(self, vendor_id, product_id):
+        busses = usb.busses()
+        self.handle = None
+        for bus in busses:
+            devices = bus.devices
+            for dev in devices:
+                if dev.idVendor == vendor_id and dev.idProduct == product_id:
+                    self.dev = dev
+                    self.conf = self.dev.configurations[0]
+                    self.intf = self.conf.interfaces[0][0]
+                    self.endpoints = []
+                    for endpoint in self.intf.endpoints:
+                        self.endpoints.append(endpoint.address)
+                    return
+        raise IndentationError("Not found device!")
 
-  def open(self):
-    if self.handle:
-      self.handle = None
-    self.handle = self.dev.open()
-    self.handle.setConfiguration(self.conf)
-    self.handle.claimInterface(self.intf)
-    self.handle.setAltInterface(self.intf)
+    def open(self):
+        if self.handle:
+            self.handle = None
+        self.handle = self.dev.open()
+        self.handle.setConfiguration(self.conf)
+        self.handle.claimInterface(self.intf)
+        self.handle.setAltInterface(self.intf)
+
+
 def setup():
-    global dev, mascon, brake, lastdata
+    global dev, mascon, brake
     dev = UsbDevice(0x0AE4, 0x0004)
     dev.open()
     mascon, brake = 0, 0
+
 
 def main():
     try:
@@ -49,7 +54,7 @@ def main():
             if brake == 0:
                 brake = 0
             elif brake == 17:
-                brake= 1
+                brake = 1
             elif brake == 27:
                 brake = 2
             elif brake == 33:
@@ -67,7 +72,8 @@ def main():
             else:
                 brake = 9
         if array[2] != 255:
-            global mascon
+            if brake != 0:
+                return [0, brake]
             mascon = array[2]
             mascon = 129 - mascon
             if mascon == 20:
@@ -82,12 +88,10 @@ def main():
                 mascon = 5
             else:
                 mascon = 0
-            if brake != 0:
-                mascon = 0
-    return [mascon , brake]
-        
+    return [mascon, brake]
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     setup()
     while True:
         print(main())
