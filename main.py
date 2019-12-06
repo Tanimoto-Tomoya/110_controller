@@ -66,6 +66,7 @@ def quit_button_pushed():
 
 
 def f_button_pushed():
+    global rotation_state
     rotation_state = 1
     f_button.configure(image=f_button_on_img)
     r_button.configure(image=r_button_img)
@@ -75,6 +76,8 @@ def f_button_pushed():
 
 
 def r_button_pushed():
+
+    global rotation_state
     rotation_state = -1
     r_button.configure(image=r_button_on_img)
     f_button.configure(image=f_button_img)
@@ -103,8 +106,46 @@ canvas.create_oval(545, 300, 607, 362, tag="n_lamp", fill="green")
 f_button.place(x=620, y=320)
 r_button.place(x=620, y=390)
 
+head_on_sw = tk.Button(
+    root,
+    text="ON",
+    fg="#000000",
+    bg="#ffffff",
+    font=("", "12", "bold"),
+    command=head_on,
+)
+head_on_sw.place(x=210, y=108)
+head_off_sw = tk.Button(
+    root,
+    text="OFF",
+    fg="#000000",
+    bg="#ffffff",
+    font=("", "12", "bold"),
+    command=head_off,
+)
+head_off_sw.place(x=290, y=108)
+tail_on_sw = tk.Button(
+    root,
+    text="ON",
+    fg="#000000",
+    bg="#ffffff",
+    font=("", "12", "bold"),
+    command=tail_on,
+)
+tail_on_sw.place(x=210, y=148)
+tail_off_sw = tk.Button(
+    root,
+    text="OFF",
+    fg="#000000",
+    bg="#ffffff",
+    font=("", "12", "bold"),
+    command=tail_off,
+)
+tail_off_sw.place(x=290, y=148)
+
 
 def emg_pushed():
+    global rotation_state
     rotation_state = 0
     r_button.configure(image=r_button_img)
     f_button.configure(image=f_button_img)
@@ -120,12 +161,14 @@ emg_button.place(x=545, y=390)
 
 
 def head_on():
+    global headlight_state
     headlight_state = 1
     head_on_sw.configure(fg="#ffffff", bg="#ff0000")
     head_off_sw.configure(fg="#000000", bg="#ffffff")
 
 
 def head_off():
+    global headlight_state
     headlight_state = 0
     head_on_sw.configure(fg="#000000", bg="#ffffff")
     head_off_sw.configure(fg="#ffffff", bg="#ff0000")
@@ -134,12 +177,14 @@ def head_off():
 
 
 def tail_on():
+    global taillight_state
     taillight_state = 1
     tail_on_sw.configure(fg="#ffffff", bg="#ff0000")
     tail_off_sw.configure(fg="#000000", bg="#ffffff")
 
 
 def tail_off():
+    global taillight_state
     taillight_state = 0
     tail_on_sw.configure(fg="#000000", bg="#ffffff")
     tail_off_sw.configure(fg="#ffffff", bg="#ff0000")
@@ -155,35 +200,50 @@ def show_bar(mas, bra):
         canvas.delete("mas4")
         canvas.delete("mas5")
     elif mas == 1:
-        canvas.create_line(82, 442, 234, 442, width=24, fill="blue", tag="mas1")
+        canvas.create_line(82, 442, 234, 442, width=24,
+                           fill="blue", tag="mas1")
         canvas.delete("mas2")
         canvas.delete("mas3")
         canvas.delete("mas4")
         canvas.delete("mas5")
     elif mas == 2:
-        canvas.create_line(82, 442, 234, 442, width=24, fill="blue", tag="mas1")
-        canvas.create_line(82, 415, 234, 415, width=24, fill="blue", tag="mas2")
+        canvas.create_line(82, 442, 234, 442, width=24,
+                           fill="blue", tag="mas1")
+        canvas.create_line(82, 415, 234, 415, width=24,
+                           fill="blue", tag="mas2")
         canvas.delete("mas3")
         canvas.delete("mas4")
         canvas.delete("mas5")
     elif mas == 3:
-        canvas.create_line(82, 442, 234, 442, width=24, fill="blue", tag="mas1")
-        canvas.create_line(82, 415, 234, 415, width=24, fill="blue", tag="mas2")
-        canvas.create_line(82, 388, 234, 388, width=24, fill="blue", tag="mas3")
+        canvas.create_line(82, 442, 234, 442, width=24,
+                           fill="blue", tag="mas1")
+        canvas.create_line(82, 415, 234, 415, width=24,
+                           fill="blue", tag="mas2")
+        canvas.create_line(82, 388, 234, 388, width=24,
+                           fill="blue", tag="mas3")
         canvas.delete("mas4")
         canvas.delete("mas5")
     elif mas == 4:
-        canvas.create_line(82, 442, 234, 442, width=24, fill="blue", tag="mas1")
-        canvas.create_line(82, 415, 234, 415, width=24, fill="blue", tag="mas2")
-        canvas.create_line(82, 388, 234, 388, width=24, fill="blue", tag="mas3")
-        canvas.create_line(82, 361, 234, 361, width=24, fill="blue", tag="mas4")
+        canvas.create_line(82, 442, 234, 442, width=24,
+                           fill="blue", tag="mas1")
+        canvas.create_line(82, 415, 234, 415, width=24,
+                           fill="blue", tag="mas2")
+        canvas.create_line(82, 388, 234, 388, width=24,
+                           fill="blue", tag="mas3")
+        canvas.create_line(82, 361, 234, 361, width=24,
+                           fill="blue", tag="mas4")
         canvas.delete("mas5")
     else:
-        canvas.create_line(82, 442, 234, 442, width=24, fill="blue", tag="mas1")
-        canvas.create_line(82, 415, 234, 415, width=24, fill="blue", tag="mas2")
-        canvas.create_line(82, 388, 234, 388, width=24, fill="blue", tag="mas3")
-        canvas.create_line(82, 361, 234, 361, width=24, fill="blue", tag="mas4")
-        canvas.create_line(82, 334, 234, 334, width=24, fill="blue", tag="mas5")
+        canvas.create_line(82, 442, 234, 442, width=24,
+                           fill="blue", tag="mas1")
+        canvas.create_line(82, 415, 234, 415, width=24,
+                           fill="blue", tag="mas2")
+        canvas.create_line(82, 388, 234, 388, width=24,
+                           fill="blue", tag="mas3")
+        canvas.create_line(82, 361, 234, 361, width=24,
+                           fill="blue", tag="mas4")
+        canvas.create_line(82, 334, 234, 334, width=24,
+                           fill="blue", tag="mas5")
     canvas.create_polygon(81, 455, 81, 308, 200, 455, fill="black")
 
 
@@ -231,43 +291,6 @@ def controll():
     root.after(100, controll)
 
 
-head_on_sw = tk.Button(
-    root,
-    text="ON",
-    fg="#000000",
-    bg="#ffffff",
-    font=("", "12", "bold"),
-    command=head_on,
-)
-head_on_sw.place(x=210, y=108)
-head_off_sw = tk.Button(
-    root,
-    text="OFF",
-    fg="#000000",
-    bg="#ffffff",
-    font=("", "12", "bold"),
-    command=head_off,
-)
-head_off_sw.place(x=290, y=108)
-tail_on_sw = tk.Button(
-    root,
-    text="ON",
-    fg="#000000",
-    bg="#ffffff",
-    font=("", "12", "bold"),
-    command=tail_on,
-)
-tail_on_sw.place(x=210, y=148)
-tail_off_sw = tk.Button(
-    root,
-    text="OFF",
-    fg="#000000",
-    bg="#ffffff",
-    font=("", "12", "bold"),
-    command=tail_off,
-)
-tail_off_sw.place(x=290, y=148)
-
 canvas.place(x=0, y=0)
 quit_button.place(x=0, y=0)
 mas_data = tk.StringVar()
@@ -276,7 +299,7 @@ bra_data = tk.StringVar()
 data = read.main()
 dt_now = dt.datetime.now()
 now_time = tk.StringVar()
-now_time.set(dt_now.strftime("%Y-%m-%d %H:%M% z"))
+now_time.set(dt_now.strftime("%Y-%m-%d %H:%M %S"))
 time_label = tk.Label(
     root, textvariable=now_time, fg="white", bg="black", font=("", "14", "")
 )
