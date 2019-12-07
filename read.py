@@ -74,6 +74,7 @@ def main():
         if array[2] != 255:
             if brake != 0:
                 return [0, brake]
+            global mascon
             mascon = array[2]
             mascon = 129 - mascon
             if mascon == 20:

@@ -106,6 +106,39 @@ canvas.create_oval(545, 300, 607, 362, tag="n_lamp", fill="green")
 f_button.place(x=620, y=320)
 r_button.place(x=620, y=390)
 
+
+def head_on():
+    global headlight_state
+    headlight_state = 1
+    head_on_sw.configure(fg="#ffffff", bg="#ff0000")
+    head_off_sw.configure(fg="#000000", bg="#ffffff")
+
+
+def head_off():
+    global headlight_state
+    headlight_state = 0
+    head_on_sw.configure(fg="#000000", bg="#ffffff")
+    head_off_sw.configure(fg="#ffffff", bg="#ff0000")
+    GPIO.output(h1_led_pin, 0)
+    GPIO.output(h2_led_pin, 0)
+
+
+def tail_on():
+    global taillight_state
+    taillight_state = 1
+    tail_on_sw.configure(fg="#ffffff", bg="#ff0000")
+    tail_off_sw.configure(fg="#000000", bg="#ffffff")
+
+
+def tail_off():
+    global taillight_state
+    taillight_state = 0
+    tail_on_sw.configure(fg="#000000", bg="#ffffff")
+    tail_off_sw.configure(fg="#ffffff", bg="#ff0000")
+    GPIO.output(t1_led_pin, 0)
+    GPIO.output(t2_led_pin, 0)
+
+
 head_on_sw = tk.Button(
     root,
     text="ON",
@@ -159,37 +192,6 @@ emg_img = ImageTk.PhotoImage(emg_img)
 emg_button = tk.Button(root, image=emg_img, bd=0, command=emg_pushed)
 emg_button.place(x=545, y=390)
 
-
-def head_on():
-    global headlight_state
-    headlight_state = 1
-    head_on_sw.configure(fg="#ffffff", bg="#ff0000")
-    head_off_sw.configure(fg="#000000", bg="#ffffff")
-
-
-def head_off():
-    global headlight_state
-    headlight_state = 0
-    head_on_sw.configure(fg="#000000", bg="#ffffff")
-    head_off_sw.configure(fg="#ffffff", bg="#ff0000")
-    GPIO.output(h1_led_pin, 0)
-    GPIO.output(h2_led_pin, 0)
-
-
-def tail_on():
-    global taillight_state
-    taillight_state = 1
-    tail_on_sw.configure(fg="#ffffff", bg="#ff0000")
-    tail_off_sw.configure(fg="#000000", bg="#ffffff")
-
-
-def tail_off():
-    global taillight_state
-    taillight_state = 0
-    tail_on_sw.configure(fg="#000000", bg="#ffffff")
-    tail_off_sw.configure(fg="#ffffff", bg="#ff0000")
-    GPIO.output(t1_led_pin, 0)
-    GPIO.output(t2_led_pin, 0)
 
 
 def show_bar(mas, bra):
